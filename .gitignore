@@ -1,0 +1,18 @@
+# Screenshots captured from your screen. Never commit these.
+captures/*
+!captures/.gitkeep
+
+node_modules/
+.env
+*.log
+.DS_Store
+
+# Your personal rules live in rules/rules.yaml. The example file is tracked;
+# your real file is not, so you can put people's names in it.
+rules/rules.yaml
+
+# Rendered launchd plist (contains absolute paths for this machine)
+daemon/*.rendered.plist
+
+# Video renders
+video/out/
