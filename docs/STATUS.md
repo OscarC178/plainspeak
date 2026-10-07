@@ -30,10 +30,11 @@ Updated 7 October 2026. Original handoff commit: `20e1084`.
 
 ## Remaining live checks
 
-- Grant Hammerspoon Accessibility and Screen Recording in macOS, reload its config,
-  and verify physical side-button mapping (use the PS calibration menu if needed),
-  then test R against a fictional message. The actual native capture/overlay has
-  not been exercised end to end; no claim of full desktop verification.
+- Physical side-button mapping still needs the owner's check; use the PS calibration
+  menu if needed. Accessibility, Screen Recording, module loading and active mouse
+  listener were verified after a full Hammerspoon restart. Native dummy-text capture
+  reached the MCP image/show tools, and WebKit reported the result rendered, Ready,
+  with copying enabled. No screenshot was sent to Claude for this desktop test.
 - Test a real Opus result after the allowance resets. Account policy permitted
   registering the channel, but a successful model response is still unverified.
 - Google Drive, Gmail and Slack report connected in Claude MCP health checks.
@@ -55,3 +56,12 @@ use model interpretation of visible identity; line limits are prompt instruction
 Unknown source identity skips the conditional rule. Context reads may require
 approval in the attached terminal. launchd launches tmux at login; it does not
 supervise the Claude child or restart it after quota exhaustion.
+
+## Permission/capture fix — 7 October 2026
+
+Hammerspoon had stayed in the original process after permissions were changed;
+full restart made both permissions active. Native testing then exposed a code bug:
+`hs.window.snapshot` is not a module function. Replaced it with `window:snapshot()`.
+Added non-prompting permission preflight checks so clicks report missing access
+rather than trying protected operations repeatedly. Temporary test configuration
+was restored after the local-only dummy capture/overlay test.

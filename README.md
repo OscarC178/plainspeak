@@ -54,7 +54,8 @@ In the Claude terminal, accept this project's trust, its local Plainspeak MCP
 server and the development-channel warning. The preview warning appears on each
 fresh Claude start; login startup can wait at that prompt until you attach. Detach tmux with Control+B, then D.
 You need not leave a terminal window open. Open Hammerspoon, grant macOS
-Accessibility and Screen Recording permissions, then select Reload Config.
+Accessibility and Screen Recording permissions, then quit and reopen Hammerspoon.
+Reload Config only reloads Lua; it can leave the original process without active permissions.
 The draft hotkey relies on the app exposing selected text through Accessibility;
 if it does not, Plainspeak tells you rather than silently editing a whole thread.
 

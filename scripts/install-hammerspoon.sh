@@ -14,4 +14,4 @@ line = 'require("plainspeak")'
 if line not in s:
     p.write_text(s + '\n-- Plainspeak personal reading overlay\n' + line + '\n')
 PY
-echo 'Installed. Open Hammerspoon, grant Accessibility and Screen Recording, then Reload Config.'
+echo 'Installed. Open Hammerspoon, grant Accessibility and Screen Recording, then quit and reopen Hammerspoon.'

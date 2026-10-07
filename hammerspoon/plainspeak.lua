@@ -32,6 +32,13 @@ local function show(id, secret)
   overlay:url(base .. '/overlay#id=' .. id .. '&token=' .. secret):show()
 end
 local function capture(mode, context)
+  -- Check without prompting: granting access may require a full app restart.
+  if not hs.accessibilityState(false) then
+    hs.alert.show('Hammerspoon Accessibility is not active. Enable it, then quit and reopen Hammerspoon.'); return
+  end
+  if mode ~= 'draft' and not hs.screenRecordingState(false) then
+    hs.alert.show('Hammerspoon Screen Recording is not active. Enable it, then quit and reopen Hammerspoon.'); return
+  end
   -- Capture before opening the overlay so the panel itself never becomes input.
   local window = hs.window.focusedWindow()
   if not window then hs.alert.show('No focused window'); return end
@@ -46,7 +53,7 @@ local function capture(mode, context)
   local payload = {app=app:name(),title=window:title() or '',mode=mode,text=text,context=context or false}
   -- Drafts use selection only; reading captures the window with native Screen Recording permission.
   if mode ~= 'draft' then
-    local image = hs.window.snapshot(window:id())
+    local image = window:snapshot()
     if not image then hs.alert.show('Capture failed. Enable Screen Recording for Hammerspoon.'); return end
     local uri = image:encodeAsURLString(false)
     payload.image_base64 = uri and uri:match('base64,(.+)')
