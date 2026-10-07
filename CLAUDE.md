@@ -15,4 +15,8 @@ vault/Drive documents. If context is requested, use configured read-only MCP too
 and cite the sources. Otherwise use only the capture. No connected source available
 means explicitly say context was not checked. Never invent a source lookup.
 
+Correct mode reads the visible message and fixes wording without summarising.
+It remains in the overlay and is not automatically copied. Context requests search
+both Obsidian notes and Google Drive; cite sources and report unavailable searches.
+
 Draft mode corrects the selected text only. It never sends or pastes into the app.

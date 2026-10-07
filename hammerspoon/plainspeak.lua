@@ -45,7 +45,7 @@ local function capture(mode, context)
   end
   local payload = {app=app:name(),title=window:title() or '',mode=mode,text=text,context=context or false}
   -- Drafts use selection only; reading captures the window with native Screen Recording permission.
-  if mode == 'read' then
+  if mode ~= 'draft' then
     local image = hs.window.snapshot(window:id())
     if not image then hs.alert.show('Capture failed. Enable Screen Recording for Hammerspoon.'); return end
     local uri = image:encodeAsURLString(false)
@@ -59,10 +59,82 @@ local function capture(mode, context)
   end)
 end
 M.read = function() capture('read',false) end
+M.correct = function() capture('correct',false) end
 M.draft = function() capture('draft',false) end
 M.context = function() capture('read',true) end
+M.search = M.context
 M.close = close
 hs.hotkey.bind({'ctrl','alt','cmd'},'R',M.read)
 hs.hotkey.bind({'ctrl','alt','cmd'},'D',M.draft)
 hs.hotkey.bind({'ctrl','alt','cmd'},'G',M.context)
+-- Side-button routing. Keep references on M so Lua does not collect the taps.
+-- IDs 3/4 are conventional back/front; calibration handles different drivers.
+local mouseConfigPath = os.getenv('HOME') .. '/.hammerspoon/plainspeak-mouse.json'
+local mouse = {front=4,back=3}
+local f = io.open(mouseConfigPath, 'r')
+if f then
+  local ok, saved = pcall(hs.json.decode, f:read('*a')); f:close()
+  if ok and type(saved) == 'table' then
+    for _, key in ipairs({'front','back'}) do
+      if type(saved[key]) == 'number' and saved[key] >= 3 and saved[key] <= 31 then mouse[key] = saved[key] end
+    end
+  end
+end
+if mouse.front == mouse.back then mouse = {front=4,back=3} end
+local events = hs.eventtap.event.types
+local buttonProperty = hs.eventtap.event.properties.mouseEventButtonNumber
+local consumed = {}
+M.mouseTap = hs.eventtap.new({events.otherMouseDown,events.otherMouseUp,events.otherMouseDragged}, function(event)
+  local button = event:getProperty(buttonProperty)
+  local kind = event:getType()
+  -- Remember the down decision through release, even when modifiers change.
+  if kind ~= events.otherMouseDown then
+    local handled = consumed[button] == true
+    if kind == events.otherMouseUp then consumed[button] = nil end
+    return handled
+  end
+  if button ~= mouse.front and button ~= mouse.back then return false end
+  local flags = event:getFlags()
+  if flags.alt or flags.ctrl or flags.shift or flags.fn or (flags.cmd and button ~= mouse.back) then return false end
+  consumed[button] = true
+  local action = flags.cmd and M.search or button == mouse.front and M.correct or M.read
+  hs.timer.doAfter(0, action) -- leave the input callback before capturing the screen
+  return true -- no accidental browser Back/Forward
+end):start()
+function M.learnMouse(which)
+  if M.learnTap then M.learnTap:stop() end
+  if M.learnTimeout then M.learnTimeout:stop() end
+  consumed = {}
+  hs.alert.show('Press the ' .. which .. ' side button now')
+  M.mouseTap:stop()
+  local chosen
+  M.learnTap = hs.eventtap.new({events.otherMouseDown,events.otherMouseUp}, function(event)
+    local button = event:getProperty(buttonProperty)
+    if button < 3 then return false end -- wheel/left/right are never rebound
+    if event:getType() == events.otherMouseDown then chosen = button; return true end
+    if chosen ~= button then return false end
+    M.learnTap:stop()
+    local other = which == 'front' and 'back' or 'front'
+    if mouse[other] == chosen then mouse[other] = mouse[which] end
+    mouse[which] = chosen
+    local out = io.open(mouseConfigPath, 'w')
+    if out then out:write(hs.json.encode(mouse)); out:close() end
+    M.mouseTap:start()
+    hs.alert.show('Plainspeak ' .. which .. ' button saved')
+    return true
+  end):start()
+  -- Always restore ordinary handling if the user never presses a button.
+  M.learnTimeout = hs.timer.doAfter(15,function()
+    if M.learnTap and M.learnTap:isEnabled() then M.learnTap:stop(); M.mouseTap:start(); hs.alert.show('Button setup timed out') end
+  end)
+end
+M.menu = hs.menubar.new():setTitle('PS'):setTooltip('Plainspeak mouse controls')
+M.menu:setMenu({
+  {title='Front: read and correct',fn=M.correct},
+  {title='Back: read and simplify',fn=M.read},
+  {title='Command + back: search notes and Drive',fn=M.search},
+  {title='Set front mouse button…',fn=function() M.learnMouse('front') end},
+  {title='Set back mouse button…',fn=function() M.learnMouse('back') end},
+  {title='Close overlay',fn=M.close},
+})
 return M

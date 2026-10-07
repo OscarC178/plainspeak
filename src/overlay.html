@@ -15,7 +15,7 @@ copy.onclick=()=>bridge('copy',text);
 document.addEventListener('keydown',e=>{if(e.key==='Escape')bridge('close','')});
 async function poll(){
  try{const r=await fetch('/result/'+id,{headers:{Authorization:'Bearer '+token}});const data=await r.json();if(!r.ok)throw Error(data.error);
- document.getElementById('mode').textContent=data.mode==='draft'?'Your words, corrected':'What they mean';
+ document.getElementById('mode').textContent=data.mode==='draft'?'Your words, corrected':data.mode==='correct'?'Message, corrected':'What they mean';
  if(data.state!=='pending'){stopped=true;text=data.text;result.textContent=text;status.textContent=data.state==='done'?'Ready':'Needs attention';copy.disabled=data.state!=='done';if(data.state==='done'&&data.mode==='draft')bridge('copy',text)}
  }catch(e){stopped=true;status.textContent='Could not load result';result.textContent=e.message}
  if(!stopped)setTimeout(poll,700);

@@ -6,7 +6,7 @@ import { loadRules, resolve, type Capture } from './rules';
 import { buildPrompt } from './prompt';
 
 const input = z.object({
-  app: z.string().max(200), title: z.string().max(2000), mode: z.enum(['read', 'draft']),
+  app: z.string().max(200), title: z.string().max(2000), mode: z.enum(['read', 'correct', 'draft']),
   text: z.string().max(40000).optional(), image_base64: z.string().max(8_000_000).optional(),
   context: z.boolean().optional(),
 }).strict().refine(v => v.text?.trim() || v.image_base64, 'Capture needs text or a PNG');

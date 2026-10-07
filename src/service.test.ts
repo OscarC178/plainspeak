@@ -56,3 +56,12 @@ test('invalid rule line limits and profiles fail before processing',async()=>{
   await Bun.write(path,'defaults: {max_lines: -1, read_instructions: read, draft_instructions: draft}');
   await expect(loadRules(path)).rejects.toThrow('max_lines');
 });
+
+test('correction reads incoming text without draft selection requirements',async()=>{
+ const f=await fixture();
+ const response=await f.post({...capture,mode:'correct',text:'plese check the reveiw'});
+ expect(response.status).toBe(202); const {request_id}=await response.json();
+ await f.service.show(request_id,'Please check the review.');
+ const result=await fetch(f.url+'/result/'+request_id,{headers:{Authorization:'Bearer '+f.service.token}});
+ expect((await result.json()).mode).toBe('correct');
+});

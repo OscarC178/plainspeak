@@ -9,14 +9,16 @@ Updated 7 October 2026. Original handoff commit: `20e1084`.
 - Local authenticated HTTP capture/result service, channel notifications and MCP image/show tools.
 - Correlated results retained for late overlay connections; one active capture, two-minute timeout.
 - Private temporary screenshots removed on reply, timeout and orderly shutdown.
-- Hammerspoon read/draft/context hotkeys and floating overlay; draft result copied, never sent.
+- Hammerspoon front side button corrects visible text; back simplifies it; Command +
+  back searches Obsidian and Google Drive. PS menu calibrates physical button IDs.
+  Keyboard read/draft/context shortcuts retained; draft result copied, never sent.
 - Persistent interactive Opus xhigh tmux session, startup/stop/attach/status scripts.
 - Login startup installed on this Mac. Hammerspoon module installed without overwriting existing config.
 - README with usage, rules, context setup, privacy, quota and platform limits.
 
 ## Verified on this Mac
 
-- `bun test`: 20 pass, zero fail, including a real stdio MCP client/server smoke test.
+- `bun test`: 23 pass, zero fail, including a real stdio MCP client/server smoke test.
 - `bun run typecheck`: pass.
 - Shell syntax checks and Lua parser: pass.
 - Local health endpoint responds; custom channel appears in Claude's interactive session.
@@ -29,6 +31,7 @@ Updated 7 October 2026. Original handoff commit: `20e1084`.
 ## Remaining live checks
 
 - Grant Hammerspoon Accessibility and Screen Recording in macOS, reload its config,
+  and verify physical side-button mapping (use the PS calibration menu if needed),
   then test R against a fictional message. The actual native capture/overlay has
   not been exercised end to end; no claim of full desktop verification.
 - Test a real Opus result after the allowance resets. Account policy permitted

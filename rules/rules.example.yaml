@@ -18,6 +18,10 @@ defaults:
     Keep meaningful uncertainty. Drop pleasantries and filler.
     Never invent facts. If something is ambiguous, say "unclear:" and name it.
     Never send anything back to Slack or Gmail. Your only output is the overlay.
+  correct_instructions: |
+    Correct spelling, grammar, word order and missing words in the visible message.
+    Preserve its meaning, tone, names, dates and numbers. Do not summarise or invent
+    intent. Return corrected text only. Flag ambiguous wording instead of guessing.
   draft_instructions: |
     Oscar wrote this and wants it readable before he sends it.
     Fix spelling, word order and dropped words. Keep his voice, his meaning and

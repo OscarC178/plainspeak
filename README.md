@@ -10,12 +10,22 @@ in the app where the conversation is happening.
 
 ## Use it
 
-| Hotkey | Action |
+| Mouse / hotkey | Action |
 | --- | --- |
+| Front side button | Read the visible message and correct spelling/grammar |
+| Back side button | Read and simplify the visible message |
+| Command + back side button | Search Obsidian notes and Google Drive for relevant context |
 | Control + Option + Command + R | Capture the focused window and explain the visible message |
 | Control + Option + Command + D | Correct selected draft text and copy the result to the clipboard |
 | Control + Option + Command + G | Explain the visible message with context from configured read-only MCP sources |
 | Escape | Close the overlay |
+
+After updating, choose **Reload Config** in Hammerspoon. A **PS** menu appears
+in the menu bar. If your mouse reports the buttons in the opposite order, use
+**Set front mouse button…**, press that button, then repeat for the back button.
+The wheel and left/right buttons are left alone. These assigned side-button presses
+replace browser Back/Forward; other modifier combinations retain normal behaviour.
+Personal button IDs are stored in `~/.hammerspoon/plainspeak-mouse.json`.
 
 Reading needs no copy-and-paste. Focus a Slack or Gmail conversation and press R.
 The overlay leads with the point, the request and any deadline. Ambiguity is flagged.
