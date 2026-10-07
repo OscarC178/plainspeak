@@ -40,7 +40,9 @@ Updated 7 October 2026. Original handoff commit: `20e1084`.
 - Feature video: 36-second silent preview at http://localhost:3002/#project/plainspeak.
   Final check: zero runtime/layout/motion errors, 112/112 contrast checks pass;
   five non-blocking lint recommendations to split scenes into sub-compositions.
-  Review sheet inspected. MP4 export awaits preview approval required by the video skill.
+  Review sheet inspected. Preview approved and MP4 exported to
+  `videos/plainspeak/renders/plainspeak.mp4`: 36.0s, 1920×1080, 30fps, silent.
+  Export verified with ffprobe; rendered binaries remain local and ignored by Git.
 
 ## Deliberate limits
 
