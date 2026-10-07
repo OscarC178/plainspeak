@@ -14,6 +14,8 @@
  *     sender is X" so the model does the matching.
  */
 
+import { z } from "zod";
+
 export type Mode = "read" | "draft";
 
 export interface Capture {
@@ -182,21 +184,29 @@ export function resolve(rules: RulesFile, cap: Capture): Resolved {
   return out;
 }
 
-/** Load and validate a YAML rules file. Throws a readable error on bad shape. */
+/** Validate every editable field so a typo cannot crash matching at runtime. */
+const lineLimit = z.number().int().min(1).max(30);
+const matchSchema = z.object({
+  app: z.string().optional(), title: z.string().optional(), channel: z.string().optional(),
+  text: z.string().optional(), person: z.string().optional(), sender_domain: z.string().optional(),
+  thread: z.string().optional(), mode: z.enum(["read", "draft"]).optional(),
+}).strict();
+const rulesSchema = z.object({
+  defaults: z.object({ max_lines: lineLimit.default(6), read_instructions: z.string().min(1), draft_instructions: z.string().min(1) }).strict(),
+  profiles: z.record(z.object({ instructions: z.string().min(1), max_lines: lineLimit.optional() }).strict()).default({}),
+  rules: z.array(z.object({ name: z.string().optional(), match: matchSchema, profile: z.string().optional(), max_lines: lineLimit.optional(), instructions: z.string().optional(), notes: z.string().optional() }).strict()).default([]),
+}).strict();
+
+/** Load a complete rules file. Invalid edits fail with the field name. */
 export async function loadRules(path: string): Promise<RulesFile> {
-  const raw = await Bun.file(path).text();
-  const parsed = Bun.YAML.parse(raw) as Partial<RulesFile>;
-  if (!parsed || typeof parsed !== "object") throw new Error(`${path}: not a YAML mapping`);
-  if (!parsed.defaults?.read_instructions || !parsed.defaults?.draft_instructions) {
-    throw new Error(`${path}: defaults.read_instructions and defaults.draft_instructions are required`);
+  const parsed = Bun.YAML.parse(await Bun.file(path).text());
+  const result = rulesSchema.safeParse(parsed);
+  if (!result.success) throw new Error(`${path}: ${result.error.issues.map(i => `${i.path.join(".")}: ${i.message}`).join("; ")}`);
+  for (const rule of result.data.rules) {
+    if (rule.profile && !result.data.profiles[rule.profile]) throw new Error(`${path}: unknown profile ${rule.profile}`);
+    for (const key of ["title", "text"] as const) {
+      if (rule.match[key]) { try { new RegExp(rule.match[key]!, "i"); } catch { throw new Error(`${path}: invalid ${key} regex in ${rule.name ?? "unnamed rule"}`); } }
+    }
   }
-  return {
-    defaults: {
-      max_lines: parsed.defaults.max_lines ?? 6,
-      read_instructions: parsed.defaults.read_instructions,
-      draft_instructions: parsed.defaults.draft_instructions,
-    },
-    profiles: parsed.profiles ?? {},
-    rules: parsed.rules ?? [],
-  };
+  return result.data;
 }

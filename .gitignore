@@ -16,3 +16,6 @@ daemon/*.rendered.plist
 
 # Video renders
 video/out/
+
+# Local auth token and temporary private screenshots
+.local/
