@@ -19,3 +19,8 @@ video/out/
 
 # Local auth token and temporary private screenshots
 .local/
+
+# HyperFrames machine state; keep authored video and review snapshots
+videos/**/.hyperframes/
+videos/**/.thumbnails/
+videos/**/renders/

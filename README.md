@@ -41,7 +41,8 @@ bun run daemon:attach
 ```
 
 In the Claude terminal, accept this project's trust, its local Plainspeak MCP
-server and the development-channel warning. Detach tmux with Control+B, then D.
+server and the development-channel warning. The preview warning appears on each
+fresh Claude start; login startup can wait at that prompt until you attach. Detach tmux with Control+B, then D.
 You need not leave a terminal window open. Open Hammerspoon, grant macOS
 Accessibility and Screen Recording permissions, then select Reload Config.
 The draft hotkey relies on the app exposing selected text through Accessibility;
@@ -99,18 +100,28 @@ long sentence can occupy more visual lines. Allowed limits: 1–30.
 
 ## Vault and Google Drive context
 
-Plainspeak uses the MCP servers available to its Claude session. Configure and
-authenticate your Obsidian/Drive connectors in Claude Code; Plainspeak does not
-ask for model API keys, copy connector credentials or provision a new account.
+Plainspeak provides its own read-only vault MCP tools and also uses the MCP
+servers available to its Claude session. To enable local Obsidian search, create
+`.local/config.json` with your vault's absolute path (this file is ignored by Git):
+
+```json
+{"vault": "/absolute/path/to/your/vault"}
+```
+
+Restart the session after changing this path. `vault_search` returns up to eight
+excerpts; `vault_note` reads a relative markdown path inside that vault. Both reject
+reads outside the vault, including symlink escapes. Search is capped at 4,000 notes
+and the first 16,000 characters per note; truncated coverage is reported. There is
+no vault write tool. Configure/authenticate your Google Drive connector in Claude
+Code; Plainspeak does not ask for model API keys or copy connector credentials.
 Press G for grounded reading. Without connected sources it says context was not
 checked. Source titles/links should appear alongside factual context.
 
-Source tools beyond the two local overlay tools retain normal Claude permission
+Remote source tools beyond the local overlay/vault tools retain normal Claude permission
 prompts: approve read access in the attached terminal. Never grant broad wildcard
 write permissions. Exact tool names vary between connectors. Existing connector
 credentials and service login requirements still apply; “no API keys” refers to
-the model engine. Live vault/Drive retrieval needs separate verification on your
-chosen connectors. Automatic thread lookup from a tab title is not implemented.
+the model engine. A live model-grounded lookup still needs verification after any setup changes. Automatic thread lookup from a tab title is not implemented.
 
 ## Why this helps — and where it does not
 
@@ -156,7 +167,7 @@ bunx tsc --noEmit
 
 Tests cover rule matching, capture authentication, foreign-origin rejection,
 request/result correlation, concurrent capture rejection, PNG lifetime, transport
-failure and invalid configuration. See `docs/STATUS.md` for machine verification.
+failure, invalid configuration and read-only vault path boundaries. See `docs/STATUS.md` for machine verification.
 The feature-video project lives in `videos/plainspeak/` and uses fictional messages.
 
 Official references: [Claude channels](https://code.claude.com/docs/en/channels),

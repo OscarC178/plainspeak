@@ -10,7 +10,8 @@ test('stdio MCP advertises channel and tools, validates unknown requests', async
     await client.connect(transport);
     expect(client.getServerCapabilities()?.experimental?.['claude/channel']).toEqual({});
     const { tools } = await client.listTools();
-    expect(tools.map(t=>t.name).sort()).toEqual(['capture_image','show']);
+    expect(tools.map(t=>t.name)).toContain('capture_image');
+    expect(tools.map(t=>t.name)).toContain('show');
     const result = await client.callTool({name:'show',arguments:{request_id:crypto.randomUUID(),text:'No pending capture'}});
     expect(result.isError).toBe(true);
   } finally { await client.close(); }
